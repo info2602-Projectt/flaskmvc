@@ -1,3 +1,4 @@
+from datetime import datetime
 from App.database import db
 
 class Apartment(db.Model):
