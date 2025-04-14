@@ -1,43 +1,51 @@
-from flask import Blueprint, request, jsonify
-from App.models import Apartment, Amenity
+from App.models import Apartment
 from App.database import db
-from datetime import datetime
 
-apartment_views = Blueprint('apartment_views', __name__)
-
-@apartment_views.route('/apartments', methods=['POST'])
-def create_apartment():
-    data = request.json
+def create_apartment(
+    title, description, address, city, state, zip_code, price,
+    bedrooms, bathrooms, owner_id, square_feet=None, image_filename=None
+):
     new_apartment = Apartment(
-        title=data['title'],
-        description=data['description'],
-        address=data['address'],
-        city=data['city'],
-        state=data['state'],
-        zip_code=data['zip_code'],
-        price=data['price'],
-        bedrooms=data['bedrooms'],
-        bathrooms=data['bathrooms'],
-        square_feet=data.get('square_feet'),
-        image_filename=data.get('image_filename'),
-        owner_id=data['owner_id']
+        title=title,
+        description=description,
+        address=address,
+        city=city,
+        state=state,
+        zip_code=zip_code,
+        price=price,
+        bedrooms=bedrooms,
+        bathrooms=bathrooms,
+        owner_id=owner_id,
+        square_feet=square_feet,
+        image_filename=image_filename
     )
     db.session.add(new_apartment)
     db.session.commit()
-    return jsonify({'id': new_apartment.id}), 201
+    return new_apartment
 
-@apartment_views.route('/apartments/<int:apartment_id>', methods=['GET'])
-def get_apartment(apartment_id):
-    apt = Apartment.query.get(apartment_id)
-    if not apt:
-        return jsonify({'error': 'Apartment not found'}), 404
+def get_apartment(id):
+    return Apartment.query.get(id)
 
-    return jsonify({
-        'id': apt.id,
-        'title': apt.title,
-        'description': apt.description,
-        'price': apt.price,
-        'bedrooms': apt.bedrooms,
-        'bathrooms': apt.bathrooms,
-        'amenities': [a.name for a in apt.amenities]
-    })
+def get_all_apartments():
+    return Apartment.query.all()
+
+def get_apartments_by_owner(owner_id):
+    return Apartment.query.filter_by(owner_id=owner_id).all()
+
+def update_apartment(id, **kwargs):
+    apartment = get_apartment(id)
+    if apartment:
+        for key, value in kwargs.items():
+            if hasattr(apartment, key):
+                setattr(apartment, key, value)
+        db.session.commit()
+        return apartment
+    return None
+
+def delete_apartment(id):
+    apartment = get_apartment(id)
+    if apartment:
+        db.session.delete(apartment)
+        db.session.commit()
+        return True
+    return False
