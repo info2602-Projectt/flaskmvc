@@ -1,25 +1,18 @@
 {% extends "layout.html" %}
 
-{% block title %}Apartment Reviews - Find Your Perfect Home{% endblock %}
-{% block page %}Find Your Perfect Apartment{% endblock %}
+{% block title %}RentEasy - Find Your Perfect Home{% endblock %}
+{% block page %}RentEasy Home{% endblock %}
 
 {% block content %}
 <div class="section center-align">
-    <div class="row">
-        <div class="col s12 m6 l3">
-            {% if not current_user.is_authenticated %}
-                <a href="{{ url_for('auth_views.register_view') }}" class="btn-small purple white-text">Sign Up</a>
-            {% endif %}
-                <a href="{{ url_for('auth_views.register_view') }}">
-                    <i class="material-icons small white-text purple", style="border-radius: 50%;">search</i>
-                </a>
-        </div>
-    </div>
-    <h4 class="purple-text text-darken-3">Find Your Perfect Apartment</h4>
+    {% if is_authenticated %}
+        <h4 class="purple-text text-darken-3">Welcome, {{ current_user.username }}!</h4>
+    {% endif %}
+    <h4 class="purple-text text-darken-3">Find Your Perfect Apartment Here 
+        <a href="{{ url_for('index_views.search') }}" class="card hoverable center-align teal waves-effect white-text" style="border-radius: 50% ;padding: 10px;">🔍</a>
+    </h4>
     <p class="flow-text">Discover apartments with verified tenant reviews. Make an informed decision about your next home.</p>
 </div>
-
-
 
 
 <div class="divider"></div>
