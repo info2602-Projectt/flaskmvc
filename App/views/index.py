@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, jsonify
-from App.models import Apartment  # make sure Apartment is imported
+from flask import Blueprint, render_template, jsonify,request
+from App.models import Apartment 
 from App.controllers import initialize
+from sqlalchemy import or_
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
 
@@ -19,68 +20,65 @@ def init():
 def health_check():
     return jsonify({'status': 'healthy'})
 
+
 @index_views.route('/search', methods=['GET', 'POST'])
 def search():
-    form = SearchForm()
     results = []
     
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
         query = Apartment.query
-        
-        # Filter by location if provided
-        if form.location.data:
-            location_term = f"%{form.location.data}%"
+
+        location = request.form.get('location', '')
+        min_price = request.form.get('min_price', type=float)
+        max_price = request.form.get('max_price', type=float)
+        bedrooms = request.form.get('bedrooms', type=int)
+        bathrooms = request.form.get('bathrooms', type=int)
+
+        # Filter location
+        if location:
+            location_term = f"%{location}%"
             query = query.filter(or_(
                 Apartment.city.ilike(location_term),
                 Apartment.state.ilike(location_term),
                 Apartment.zip_code.ilike(location_term)
             ))
         
-        # Filter by price range if provided
-        if form.min_price.data:
-            query = query.filter(Apartment.price >= form.min_price.data)
-        if form.max_price.data:
-            query = query.filter(Apartment.price <= form.max_price.data)
-        
-        # Filter by bedrooms and bathrooms if not 'Any'
-        if form.bedrooms.data > 0:
-            query = query.filter(Apartment.bedrooms >= form.bedrooms.data)
-        if form.bathrooms.data > 0:
-            query = query.filter(Apartment.bathrooms >= form.bathrooms.data)
-        
-        # Get all apartments matching the base filters
+        # Filter price range
+        if min_price is not None:
+            query = query.filter(Apartment.price >= min_price)
+        if max_price is not None:
+            query = query.filter(Apartment.price <= max_price)
+
+        if bedrooms:
+            query = query.filter(Apartment.bedrooms >= bedrooms)
+        if bathrooms:
+            query = query.filter(Apartment.bathrooms >= bathrooms)
+
         apartments = query.all()
-        
-        # Filter by amenities manually (since we need to check multiple amenities per apartment)
+
+        # Filter by amenities checkboxes
+        amenities_filter = {
+            "Air Conditioning": request.form.get("has_ac"),
+            "Heating": request.form.get("has_heating"),
+            "Washer/Dryer": request.form.get("has_washer_dryer"),
+            "Dishwasher": request.form.get("has_dishwasher"),
+            "Parking": request.form.get("has_parking"),
+            "Gym": request.form.get("has_gym"),
+            "Pool": request.form.get("has_pool"),
+            "Pet Friendly": request.form.get("has_pet_friendly"),
+            "Furnished": request.form.get("has_furnished")
+        }
+
         filtered_apartments = []
         for apartment in apartments:
             amenity_names = [a.name for a in apartment.amenities]
-            
-            # Check if all selected amenities are present
-            include_apartment = True
-            
-            if form.has_ac.data and "Air Conditioning" not in amenity_names:
-                include_apartment = False
-            if form.has_heating.data and "Heating" not in amenity_names:
-                include_apartment = False
-            if form.has_washer_dryer.data and "Washer/Dryer" not in amenity_names:
-                include_apartment = False
-            if form.has_dishwasher.data and "Dishwasher" not in amenity_names:
-                include_apartment = False
-            if form.has_parking.data and "Parking" not in amenity_names:
-                include_apartment = False
-            if form.has_gym.data and "Gym" not in amenity_names:
-                include_apartment = False
-            if form.has_pool.data and "Pool" not in amenity_names:
-                include_apartment = False
-            if form.has_pet_friendly.data and "Pet Friendly" not in amenity_names:
-                include_apartment = False
-            if form.has_furnished.data and "Furnished" not in amenity_names:
-                include_apartment = False
-            
+            include_apartment = all(
+                amenity in amenity_names
+                for amenity, checked in amenities_filter.items() if checked
+            )
             if include_apartment:
                 filtered_apartments.append(apartment)
-        
+
         results = filtered_apartments
-    
-    return render_template('search.html', form=form, results=results)
+
+    return render_template('search.html', results=results)

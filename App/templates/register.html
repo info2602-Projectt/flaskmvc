@@ -3,46 +3,50 @@
 {% block title %}Register - Apartment Reviews{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="text-center mb-0">Create an Account</h2>
-            </div>
-            <div class="card-body">
+<div class="row">
+    <div class="col s12 m8 offset-m2 l6 offset-l3">
+        <div class="card hoverable">
+            <div class="card-content">
+                <span class="card-title center">Create an Account</span>
                 <form method="POST" action="{{ url_for('auth_views.register_view') }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" name="username" id="username" placeholder="Choose a username" required>
+                    <div class="input-field">
+                        <input type="text" id="username" name="username" required>
+                        <label for="username">Username</label>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" required>
-                        <small class="form-text text-muted">Password must be at least 6 characters long</small>
+                    <div class="input-field">
+                        <input type="password" id="password" name="password" required>
+                        <label for="password">Password</label>
+                        <span class="helper-text">Password must be at least 6 characters long</span>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Role</label>
-                        <select class="form-select" name="role" id="role" required>
-                            <option value="">Select a role</option>
+                    <div class="input-field">
+                        <select name="role" id="role" required>
+                            <option value="" disabled selected>Select a role</option>
                             <option value="tenant">Tenant</option>
                             <option value="landlord">Landlord</option>
                         </select>
-                        <small class="form-text text-muted">
-                            <i class="fas fa-info-circle me-1"></i> Landlords can create apartment listings. Tenants can write reviews.
-                        </small>
+                        <label for="role">Role</label>
+                        <span class="helper-text">Landlords can create apartment listings. Tenants can write reviews.</span>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="center">
+                        <button type="submit" class="btn waves-effect waves-light purple">Register</button>
                     </div>
                 </form>
             </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Already have an account? <a href="{{ url_for('auth_views.login_view') }}">Login here</a></p>
+            <div class="card-action center">
+                <p>Already have an account? <a href="{{ url_for('auth_views.login_view') }}">Login here</a></p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Materialize JS init for select dropdown -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+    });
+</script>
 {% endblock %}

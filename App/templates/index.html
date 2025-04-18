@@ -5,14 +5,22 @@
 
 {% block content %}
 <div class="section center-align">
+    <div class="row">
+        <div class="col s12 m6 l3">
+            {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth_views.register_view') }}" class="btn-small purple white-text">Sign Up</a>
+            {% endif %}
+                <a href="{{ url_for('auth_views.register_view') }}">
+                    <i class="material-icons small white-text purple", style="border-radius: 50%;">search</i>
+                </a>
+        </div>
+    </div>
     <h4 class="purple-text text-darken-3">Find Your Perfect Apartment</h4>
     <p class="flow-text">Discover apartments with verified tenant reviews. Make an informed decision about your next home.</p>
-    <div class="section">
-        {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('auth_views.register_view') }}" class="btn-large grey lighten-1 black-text waves-effect">Sign Up</a>
-        {% endif %}
-    </div>
 </div>
+
+
+
 
 <div class="divider"></div>
 
@@ -20,10 +28,10 @@
     <div class="row">
         <div class="col s12 m4">
             <div class="card hoverable center-align">
-                <div class="card-content">
-                    <i class="material-icons large purple-text">search</i>
-                    <h5>Find Apartments</h5>
-                    <p>Search our extensive database of apartment listings to find your ideal place.</p>
+                <div class="card-content">       
+                        <i class="material-icons large purple-text">search</i>
+                    <h5>Search for Apartments</h5>
+                    <p>Search our extensive database of apartment listings to find your ideal place!</p>
                 </div>
             </div>
         </div>
@@ -48,7 +56,6 @@
     </div>
 </div>
 
-<a href="{{ url_for('index_views.search') }}" class="btn-flat purple-text text-darken-3">View All Listings</a>
 
 <div class="section">
     <h5 class="center-align">Latest Apartment Listings</h5>
@@ -87,7 +94,7 @@
             {% endfor %}
         </div>
         <div class="center-align section">
-            <a href="{{ url_for('search') }}" class="btn-flat purple-text text-darken-3">View All Listings</a>
+            <a href="{{ url_for('index_views.search') }}" class="btn-flat purple-text text-darken-3">View All Listings</a>
         </div>
     {% else %}
         <div class="card-panel yellow lighten-4">
