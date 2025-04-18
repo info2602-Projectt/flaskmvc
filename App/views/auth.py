@@ -55,9 +55,7 @@ def register_view():
 
         new_user = User(
             username=username,
-            email=email,
-            role=role,
-            is_verified=(role == 'landlord')
+            password=password
         )
         new_user.set_password(password)
         db.session.add(new_user)
