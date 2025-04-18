@@ -1,13 +1,98 @@
 {% extends "layout.html" %}
-{% block title %}Flask MVC App{% endblock %}
-{% block page %}Flask MVC App{% endblock %}
 
-{{ super() }}
+{% block title %}Apartment Reviews - Find Your Perfect Home{% endblock %}
+{% block page %}Find Your Perfect Apartment{% endblock %}
 
 {% block content %}
-    <h1>Flask MVC</h1>
-    {% if is_authenticated %}
-        <p> Welcome {{current_user.username}} </p>
+<div class="section center-align">
+    <h4 class="purple-text text-darken-3">Find Your Perfect Apartment</h4>
+    <p class="flow-text">Discover apartments with verified tenant reviews. Make an informed decision about your next home.</p>
+    <div class="section">
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth_views.register_view') }}" class="btn-large grey lighten-1 black-text waves-effect">Sign Up</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section">
+    <div class="row">
+        <div class="col s12 m4">
+            <div class="card hoverable center-align">
+                <div class="card-content">
+                    <i class="material-icons large purple-text">search</i>
+                    <h5>Find Apartments</h5>
+                    <p>Search our extensive database of apartment listings to find your ideal place.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m4">
+            <div class="card hoverable center-align">
+                <div class="card-content">
+                    <i class="material-icons large amber-text">star</i>
+                    <h5>Read Reviews</h5>
+                    <p>Honest reviews from verified tenants who’ve lived in these apartments.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m4">
+            <div class="card hoverable center-align">
+                <div class="card-content">
+                    <i class="material-icons large green-text">home</i>
+                    <h5>List Properties</h5>
+                    <p>Landlords can post listings and attract quality tenants.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h5 class="center-align">Latest Apartment Listings</h5>
+
+    {% if apartments %}
+        <div class="row">
+            {% for apartment in apartments %}
+                <div class="col s12 m6 l4">
+                    <div class="card medium hoverable">
+                        {% if apartment.image_filename %}
+                        <div class="card-image">
+                            <img src="{{ url_for('static', filename='uploads/' + apartment.image_filename) }}" alt="{{ apartment.title }}">
+                        </div>
+                        {% endif %}
+                        <div class="card-content">
+                            <span class="card-title">{{ apartment.title }}</span>
+                            <p class="grey-text">{{ apartment.city }}, {{ apartment.state }}</p>
+                            <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
+                            <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, 
+                               {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
+                            <p>{{ apartment.description|truncate(100) }}</p>
+                            <div class="section">
+                                {% for amenity in apartment.amenities[:3] %}
+                                    <div class="chip">{{ amenity.name }}</div>
+                                {% endfor %}
+                                {% if apartment.amenities|length > 3 %}
+                                    <div class="chip">+{{ apartment.amenities|length - 3 }} more</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <a href="{{ url_for('view_apartment', apartment_id=apartment.id) }}" class="purple-text text-darken-3">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="center-align section">
+            <a href="{{ url_for('search') }}" class="btn-flat purple-text text-darken-3">View All Listings</a>
+        </div>
+    {% else %}
+        <div class="card-panel yellow lighten-4">
+            No apartment listings available yet. Be the first to 
+            <a href="{{ url_for('user.create_view') }}" class="purple-text text-darken-3">create a listing</a>!
+        </div>
     {% endif %}
-    <p>This is a boileplate flask application which follows the MVC pattern for structuring the project.</p>
+</div>
+
 {% endblock %}

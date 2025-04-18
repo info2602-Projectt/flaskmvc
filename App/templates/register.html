@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}Register - Apartment Reviews{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center mb-0">Create an Account</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth_views.register_view') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Choose a username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Your email address" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Create a password" required>
+                        <small class="form-text text-muted">Password must be at least 6 characters long</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" name="role" id="role" required>
+                            <option value="">Select a role</option>
+                            <option value="tenant">Tenant</option>
+                            <option value="landlord">Landlord</option>
+                        </select>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i> Landlords can create apartment listings. Tenants can write reviews.
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <p class="mb-0">Already have an account? <a href="{{ url_for('auth_views.login_view') }}">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

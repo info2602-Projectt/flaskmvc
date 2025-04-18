@@ -1,72 +1,69 @@
-from flask import Blueprint, render_template, jsonify, request, flash, send_from_directory, flash, redirect, url_for
-from flask_jwt_extended import jwt_required, current_user, unset_jwt_cookies, set_access_cookies
-
-
-from.index import index_views
-
-from App.controllers import (
-    login
-)
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
+from werkzeug.security import generate_password_hash
+from App.models import User
+from App.database import db
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+from datetime import datetime
+from App.controllers.auth import add_token_to_blocklist, get_current_user
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
+@auth_views.route('/login', methods=['GET', 'POST'])
+def login_view():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
 
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.check_password(password):
+            flash("Invalid username or password", 'danger')
+            return redirect(url_for('auth_views.login_view'))
+        
+        token = create_access_token(identity=user.id)
+        flash("Login successful", 'success')
 
-
-'''
-Page/Action Routes
-'''    
-@auth_views.route('/users', methods=['GET'])
-def get_user_page():
-    users = get_all_users()
-    return render_template('users.html', users=users)
-
-@auth_views.route('/identify', methods=['GET'])
-@jwt_required()
-def identify_page():
-    return render_template('message.html', title="Identify", message=f"You are logged in as {current_user.id} - {current_user.username}")
+        response = redirect(url_for('index_views.index_page'))
+        response.set_cookie('access_token', token)  # Store JWT in cookie (or use JS to store in localStorage)
+        return response
     
+    return render_template('login.html')
 
-@auth_views.route('/login', methods=['POST'])
-def login_action():
-    data = request.form
-    token = login(data['username'], data['password'])
-    response = redirect(request.referrer)
-    if not token:
-        flash('Bad username or password given'), 401
-    else:
-        flash('Login Successful')
-        set_access_cookies(response, token) 
-    return response
 
-@auth_views.route('/logout', methods=['GET'])
-def logout_action():
-    response = redirect(request.referrer) 
-    flash("Logged Out!")
-    unset_jwt_cookies(response)
-    return response
-
-'''
-API Routes
-'''
-
-@auth_views.route('/api/login', methods=['POST'])
-def user_login_api():
-  data = request.json
-  token = login(data['username'], data['password'])
-  if not token:
-    return jsonify(message='bad username or password given'), 401
-  response = jsonify(access_token=token) 
-  set_access_cookies(response, token)
-  return response
-
-@auth_views.route('/api/identify', methods=['GET'])
+@auth_views.route('/logout')
 @jwt_required()
-def identify_user():
-    return jsonify({'message': f"username: {current_user.username}, id : {current_user.id}"})
-
-@auth_views.route('/api/logout', methods=['GET'])
-def logout_api():
-    response = jsonify(message="Logged Out!")
-    unset_jwt_cookies(response)
+def logout_view():
+    jti = get_jwt()["jti"]
+    add_token_to_blocklist(jti)
+    flash("You have been logged out", 'success')
+    
+    response = redirect(url_for('auth_views.login_view'))
+    response.set_cookie('access_token', '', expires=0)
     return response
+
+
+@auth_views.route('/register', methods=['GET', 'POST'])
+def register_view():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        role = request.form.get('role')
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists', 'danger')
+            return redirect(url_for('auth_views.register_view'))
+
+        new_user = User(
+            username=username,
+            email=email,
+            role=role,
+            is_verified=(role == 'landlord')
+        )
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Registration successful. Please login.", 'success')
+        return redirect(url_for('auth_views.login_view'))
+
+    return render_template('register.html')
