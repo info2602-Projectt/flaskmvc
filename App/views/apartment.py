@@ -9,6 +9,7 @@ from App.controllers.apartment import (
     get_all_apartments,
     get_apartment
 )
+from App.controllers.review import create_review
 from App.models import Amenity
 from App.database import db
 
@@ -69,3 +70,21 @@ def view_apartment(apartment_id):
         flash('Listing not found', 'error')
         return redirect(url_for('apartment_views.list_apartments'))
     return render_template('view_listing.html', apartment=apartment)
+
+@apartment_views.route('/apartments/<int:apartment_id>/review', methods=['GET', 'POST'])
+@jwt_required()
+def leave_review(apartment_id):
+    apartment = get_apartment(apartment_id)
+    if not apartment:
+        flash('Listing not found', 'error')
+        return redirect(url_for('apartment_views.list_apartments'))
+
+    if request.method == 'POST':
+        rating = int(request.form.get('rating'))
+        comment = request.form.get('comment')
+        user_id = get_jwt_identity()
+        create_review(apartment_id, user_id, rating, comment)
+        flash('Review submitted!', 'success')
+        return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
+
+    return render_template('create_review.html', apartment=apartment)

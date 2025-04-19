@@ -38,13 +38,15 @@
             </div>
         </div>
         <div class="col s12 m4">
-            <div class="card hoverable center-align">
-                <div class="card-content">
-                    <i class="material-icons large green-text">home</i>
-                    <h5>List Properties</h5>
+            <a href="{{ url_for('apartment_views.create_listing') }}">
+                <div class="card hoverable center-align">
+                    <div class="card-content">
+                        <i class="material-icons large green-text">home</i>
+                        <h5>List Properties</h5>
                     <p>Landlords can post listings and attract quality tenants.</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>

@@ -4,7 +4,8 @@
   <div class="container">
     <h2>{{ apartment.title }}</h2>
     {% if apartment.image_filename %}
-      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}" alt="{{ apartment.title }}" class="responsive-img">
+      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}"
+           alt="{{ apartment.title }}" class="responsive-img">
     {% endif %}
     <p>{{ apartment.description }}</p>
     <ul>
@@ -19,6 +20,27 @@
         <li><strong>Amenities:</strong> {{ apartment.amenities|map(attribute='name')|join(', ') }}</li>
       {% endif %}
     </ul>
-    <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn">Back to Listings</a>
+
+    <div class="section">
+      <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" class="btn">Leave a Review</a>
+      <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn-flat">Back to Listings</a>
+    </div>
+
+    <h4 class="section">Reviews</h4>
+    {% if apartment.reviews %}
+      <ul class="collection">
+        {% for review in apartment.reviews %}
+          <li class="collection-item">
+            <div>
+              <strong>{{ review.rating }} star{% if review.rating > 1 %}s{% endif %}</strong> &mdash;
+              {{ review.comment }}
+            </div>
+            <small>Posted on {{ review.created_at.strftime('%Y-%m-%d') }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No reviews yet. <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}">Be the first to review.</a></p>
+    {% endif %}
   </div>
 {% endblock %}
