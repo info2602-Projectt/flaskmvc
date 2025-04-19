@@ -7,7 +7,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from App.controllers.apartment import (
     create_apartment,
     get_all_apartments,
-    get_apartment
+    get_apartment,
+    update_apartment
 )
 from App.controllers.review import create_review
 from App.models import Amenity
@@ -88,3 +89,53 @@ def leave_review(apartment_id):
         return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
 
     return render_template('create_review.html', apartment=apartment)
+
+@apartment_views.route('/apartments/<int:apartment_id>/edit', methods=['GET', 'POST'])
+@jwt_required()
+def edit_listing(apartment_id):
+    apartment = get_apartment(apartment_id)
+
+    raw_user = get_jwt_identity()
+    try:
+        user_id = int(raw_user)
+    except (TypeError, ValueError):
+        user_id = None
+
+    if not apartment or apartment.owner_id != user_id:
+        flash('You do not have permission to edit this listing.', 'error')
+        return redirect(url_for('apartment_views.list_apartments'))
+
+    if request.method == 'POST':
+        data = {
+            'title':       request.form['title'],
+            'description': request.form['description'],
+            'address':     request.form['address'],
+            'city':        request.form['city'],
+            'state':       request.form['state'],
+            'zip_code':    request.form['zip_code'],
+            'price':       request.form['price'],
+            'bedrooms':    request.form['bedrooms'],
+            'bathrooms':   request.form['bathrooms'],
+            'square_feet': request.form.get('square_feet') or None
+        }
+
+        image = request.files.get('image')
+        if image and image.filename:
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            data['image_filename'] = filename
+
+        update_apartment(apartment_id, **data)
+
+        apartment.amenities.clear()
+        for a_id in request.form.getlist('amenities'):
+            amenity = Amenity.query.get(a_id)
+            if amenity:
+                apartment.amenities.append(amenity)
+        db.session.commit()
+
+        flash('Listing updated successfully!', 'success')
+        return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
+
+    amenities = Amenity.query.all()
+    return render_template('edit_listing.html', apartment=apartment, amenities=amenities)

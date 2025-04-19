@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+{% block title %}Edit Listing – {{ apartment.title }}{% endblock %}
+{% block content %}
+  <div class="container">
+    <h2>Edit Apartment Listing</h2>
+    <form action="{{ url_for('apartment_views.edit_listing', apartment_id=apartment.id) }}" method="post" enctype="multipart/form-data">
+      <div class="input-field">
+        <input type="text" id="title" name="title" value="{{ apartment.title }}" required>
+        <label for="title" class="active">Title</label>
+      </div>
+      <div class="input-field">
+        <textarea id="description" name="description" class="materialize-textarea" required>{{ apartment.description }}</textarea>
+        <label for="description" class="active">Description</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="address" name="address" value="{{ apartment.address }}" required>
+        <label for="address" class="active">Address</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="city" name="city" value="{{ apartment.city }}" required>
+        <label for="city" class="active">City</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="state" name="state" value="{{ apartment.state }}" required>
+        <label for="state" class="active">State</label>
+      </div>
+      <div class="input-field">
+        <input type="text" id="zip_code" name="zip_code" value="{{ apartment.zip_code }}" required>
+        <label for="zip_code" class="active">ZIP Code</label>
+      </div>
+      <div class="input-field">
+        <input type="number" id="price" name="price" step="0.01" value="{{ apartment.price }}" required>
+        <label for="price" class="active">Price</label>
+      </div>
+      <div class="input-field">
+        <input type="number" id="bedrooms" name="bedrooms" value="{{ apartment.bedrooms }}" required>
+        <label for="bedrooms" class="active">Bedrooms</label>
+      </div>
+      <div class="input-field">
+        <input type="number" id="bathrooms" name="bathrooms" value="{{ apartment.bathrooms }}" required>
+        <label for="bathrooms" class="active">Bathrooms</label>
+      </div>
+      <div class="input-field">
+        <input type="number" id="square_feet" name="square_feet" value="{{ apartment.square_feet or '' }}">
+        <label for="square_feet" class="active">Square Feet</label>
+      </div>
+      <div class="file-field input-field">
+        <div class="btn">
+          <span>Image</span>
+          <input type="file" id="image" name="image" accept="image/*">
+        </div>
+        <div class="file-path-wrapper">
+          <input class="file-path validate" type="text" placeholder="Upload a new image (optional)">
+        </div>
+      </div>
+      <div>
+        <label>Amenities</label>
+        <div class="row">
+          {% for amenity in amenities %}
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="{{ amenity.id }}"
+                  {% if amenity in apartment.amenities %}checked{% endif %}>
+                <span>{{ amenity.name }}</span>
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <button class="btn waves-effect waves-light" type="submit">Save Changes</button>
+      <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}" class="btn-flat">Cancel</a>
+    </form>
+  </div>
+{% endblock %}

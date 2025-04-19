@@ -5,7 +5,7 @@
     <h2>{{ apartment.title }}</h2>
     {% if apartment.image_filename %}
       <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}"
-           alt="{{ apartment.title }}" class="responsive-img">
+      alt="{{ apartment.title }}" class="responsive-img">
     {% endif %}
     <p>{{ apartment.description }}</p>
     <ul>
@@ -23,6 +23,9 @@
 
     <div class="section">
       <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" class="btn">Leave a Review</a>
+      {% if is_authenticated and current_user.id == apartment.owner_id %}
+        <a href="{{ url_for('apartment_views.edit_listing', apartment_id=apartment.id) }}" class="btn">Edit Listing</a>
+      {% endif %}
       <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn-flat">Back to Listings</a>
     </div>
 
