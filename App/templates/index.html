@@ -57,36 +57,40 @@
 
     {% if apartments %}
         <div class="row">
-            {% for apartment in apartments %}
-                <div class="col s12 m6 l4">
-                    <div class="card medium hoverable">
-                        {% if apartment.image_filename %}
-                        <div class="card-image">
-                            <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">    
-                        </div>
-                        {% endif %}
-                        <div class="card-content">
-                            <span class="card-title">{{ apartment.title }}</span>
-                            <p class="grey-text">{{ apartment.city }}, {{ apartment.state }}</p>
-                            <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
-                            <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, 
-                               {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
-                            <p>{{ apartment.description }}</p>
-                            <div class="section">
-                                {% for amenity in apartment.amenities[:3] %}
-                                    <div class="chip">{{ amenity.name }}</div>
-                                {% endfor %}
-                                {% if apartment.amenities|length > 3 %}
-                                    <div class="chip">+{{ apartment.amenities|length - 3 }} more</div>
-                                {% endif %}
+            <div class="row" style="display: flex; flex-wrap: wrap;">
+                {% for apartment in apartments %}
+                    <div class="col s12 m6 l4" style="display: flex;">
+                        <div class="card hoverable" style="flex-grow: 1;">
+                        
+                   
+                            {% if apartment.image_filename %}
+                            <div class="card-image">
+                                <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">    
                             </div>
-                        </div>
-                        <div class="card-action">
-                            <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}">View Details</a>
+                            {% endif %}
+                            <div class="card-content">
+                                <span class="card-title">{{ apartment.title }}</span>
+                                <p class="grey-text">{{ apartment.city }}, {{ apartment.state }}</p>
+                                <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
+                                <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, 
+                                {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
+                                <p>{{ apartment.description }}</p>
+                                <div class="section">
+                                    {% for amenity in apartment.amenities %}
+                                        <div class="chip">{{ amenity.name }}</div>
+                                    {% endfor %}
+                                    
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}">View Details</a>
+                            </div>
+                     
                         </div>
                     </div>
-                </div>
-            {% endfor %}
+        
+                {% endfor %}
+            </div>
         </div>
     {% else %}
         <div class="card-panel grey">

@@ -53,9 +53,7 @@
                         <div class="row">
                             {% set amenities = [
                                 ('has_ac', 'Air Conditioning'),
-                                ('has_heating', 'Heating'),
-                                ('has_washer_dryer', 'Washer/Dryer'),
-                                ('has_dishwasher', 'Dishwasher'),
+                                ('has_washer_dryer', 'Washer'),
                                 ('has_parking', 'Parking'),
                                 ('has_gym', 'Gym'),
                                 ('has_pool', 'Pool'),
@@ -101,7 +99,7 @@
                     <div class="card medium">
                         {% if apartment.image_filename %}
                         <div class="card-image">
-                            <img src="{{ url_for('static', filename='uploads/' + apartment.image_filename) }}" alt="{{ apartment.title }}" style="height: 180px; object-fit: cover;">
+                            <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">  
                         </div>
                         {% endif %}
                         <div class="card-content">

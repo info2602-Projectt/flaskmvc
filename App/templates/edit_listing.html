@@ -56,15 +56,56 @@
       <div>
         <label>Amenities</label>
         <div class="row">
-          {% for amenity in amenities %}
+          <div class="row">
             <div class="col s4">
               <label>
-                <input type="checkbox" name="amenities" value="{{ amenity.id }}"
-                  {% if amenity in apartment.amenities %}checked{% endif %}>
-                <span>{{ amenity.name }}</span>
+                <input type="checkbox" name="amenities" value="1">
+                <span>Pool</span>
               </label>
             </div>
-          {% endfor %}
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="2">
+                <span>Washer</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="3">
+                <span>Gym</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="4">
+                <span>WiFi</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="5">
+                <span>Air Conditioning</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="6">
+                <span>Pet Friendly</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="7">
+                <span>Furnished</span>
+              </label>
+            </div>
+            <div class="col s4">
+              <label>
+                <input type="checkbox" name="amenities" value="8">
+                <span>Parking</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       <button class="btn waves-effect waves-light" type="submit">Save Changes</button>
