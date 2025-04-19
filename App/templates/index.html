@@ -8,7 +8,7 @@
     {% if is_authenticated %}
         <h4 class="purple-text text-darken-3">Welcome, {{ current_user.username }}!</h4>
         <div class="text-center my-4">
-            <a href="{{ url_for('index_views.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+            <a href="{{ url_for('index_views.dashboard') }}" class="btn-large waves-effect waves-light purple darken-3" style="border-radius: 40px; padding: 0 2rem;"> Go to Dashboard </a>
         </div>
     {% endif %}
     <h4 class="purple-text text-darken-3">Find Your Perfect Apartment Here 
@@ -24,13 +24,15 @@
 <div class="section">
     <div class="row">
         <div class="col s12 m4">
-            <div class="card hoverable center-align">
-                <div class="card-content">       
+            <a href="{{ url_for('index_views.search') }}" style="display: block; color: inherit; text-decoration: none;">
+                <div class="card hoverable center-align">
+                    <div class="card-content">       
                         <i class="material-icons large purple-text">search</i>
-                    <h5>Search for Apartments</h5>
-                    <p>Search our extensive database of apartment listings to find your ideal place!</p>
+                        <h5>Search for Apartments</h5>
+                        <p>Search our extensive database of apartment listings to find your ideal place!</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col s12 m4">
             <div class="card hoverable center-align">
@@ -42,12 +44,12 @@
             </div>
         </div>
         <div class="col s12 m4">
-            <a href="{{ url_for('apartment_views.create_listing') }}">
+            <a href="{{ url_for('apartment_views.create_listing') }}" style="display: block; color: inherit; text-decoration: none;">
                 <div class="card hoverable center-align">
                     <div class="card-content">
                         <i class="material-icons large green-text">home</i>
                         <h5>List Properties</h5>
-                    <p>Landlords can post listings and attract quality tenants.</p>
+                        <p>Landlords can post listings and attract quality tenants.</p>
                     </div>
                 </div>
             </a>
