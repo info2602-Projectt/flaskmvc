@@ -79,9 +79,9 @@
                                                 <a href="{{ url_for('apartment_views.edit_listing', apartment_id=listing.id) }}" class="btn-small waves-effect waves-light orange">
                                                     Edit
                                                 </a>
-                                                <button type="button" class="btn-small waves-effect waves-light red" data-bs-toggle="modal" data-bs-target="#deleteModal{{ listing.id }}">
-                                                    Delete
-                                                </button>
+                                                <a href="{{ url_for('apartment_views.delete_listing', apartment_id=listing.id) }}" class="btn-small waves-effect waves-light red">
+                                                    <i class="material-icons left">delete</i> Delete
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block title %}Confirm Delete Listing{% endblock %}
+{% block content %}
+  <div class="container">
+    <h3>Delete Listing: “{{ apartment.title }}”</h3>
+    <p>For security, please re‑enter your password to confirm deletion.</p>
+
+    <form method="POST">
+      <div class="input-field">
+        <input id="password" name="password" type="password" required>
+        <label for="password">Password</label>
+      </div>
+
+      <button type="submit" class="btn red">
+        <i class="material-icons left">delete</i>
+        Delete Listing
+      </button>
+      <a href="{{ url_for('index_views.dashboard') }}" class="btn-flat">
+        Cancel
+      </a>
+    </form>
+  </div>
+{% endblock %}

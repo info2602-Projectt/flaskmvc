@@ -8,8 +8,10 @@ from App.controllers.apartment import (
     create_apartment,
     get_all_apartments,
     get_apartment,
-    update_apartment
+    update_apartment,
+    delete_apartment
 )
+
 from App.controllers.review import create_review, get_review, delete_review
 from App.database import db
 
@@ -190,3 +192,33 @@ def edit_listing(apartment_id):
 
     amenities = Amenity.query.all()
     return render_template('edit_listing.html', apartment=apartment, amenities=amenities)
+
+@apartment_views.route(
+    '/apartments/<int:apartment_id>/delete',
+    methods=['GET', 'POST']
+)
+@jwt_required()
+def delete_listing(apartment_id):
+    identity = get_jwt_identity()
+    if isinstance(identity, dict):
+        current_user_id = identity.get('id')
+    else:
+        current_user_id = int(identity)
+
+    user = User.query.get(current_user_id)
+    apartment = get_apartment(apartment_id)
+
+    if not apartment or apartment.owner_id != current_user_id:
+        flash('You do not have permission to delete this listing.', 'error')
+        return redirect(url_for('index_views.dashboard'))
+
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        if not user.check_password(password):
+            flash('Incorrect password. Please try again.', 'error')
+            return render_template('confirm_delete_listing.html', apartment=apartment)
+        delete_apartment(apartment_id)
+        flash('Listing deleted successfully.', 'success')
+        return redirect(url_for('index_views.dashboard'))
+
+    return render_template('confirm_delete_listing.html', apartment=apartment)
