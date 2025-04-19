@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, jsonify,request
-from App.models import Apartment 
+from flask import Blueprint, render_template, jsonify, request, session, flash, redirect, url_for
 from App.controllers import initialize
 from sqlalchemy import or_
+from App.models import Apartment, Review, User, db
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
 
@@ -82,3 +83,45 @@ def search():
         results = filtered_apartments
 
     return render_template('search.html', results=results)
+
+@index_views.route('/dashboard')
+@jwt_required()
+def dashboard():
+    # Decode JWT to get the user information
+    current_user = get_jwt_identity()  # Returns a dictionary with 'id' and 'username'
+    
+    # Use the 'id' to query the user from the database
+    user = User.query.get(current_user)
+    
+    if user.role == 'landlord':
+        listings = Apartment.query.filter_by(owner_id=user.id).all()
+        unverified_tenants = User.query.filter_by(role='tenant', is_verified=False).all()
+        
+        return render_template('dashboard.html', listings=listings, unverified_tenants=unverified_tenants, current_user=user)
+    else:
+        reviews = Review.query.filter_by(user_id=user.id).all()
+        return render_template('dashboard.html', reviews=reviews, current_user=user)
+
+@index_views.route('/verify_by_username', methods=['POST'])
+@jwt_required()
+def verify_by_username():
+    # Decode JWT to get the user information
+    current_user = get_jwt_identity()  # Returns a dictionary with 'id' and 'username'
+
+    # Use the 'id' to query the user from the database
+    user = User.query.get(current_user)
+
+ 
+    # Get the tenant username from the form
+    username = request.form.get('username')
+    tenant = User.query.filter_by(username=username, role='tenant').first()
+
+    # Verify the tenant and update their status
+    if tenant:
+        tenant.is_verified = True
+        db.session.commit()
+        flash(f'{tenant.username} has been verified.', 'success')
+    else:
+        flash('User not found or not a tenant.', 'danger')
+
+    return redirect(url_for('index_views.dashboard'))

@@ -19,7 +19,7 @@ def initialize():
     dylan = User.query.filter_by(username="dylan").first()
     joe = User.query.filter_by(username="joe").first()
 
-    for user in [bob, john, rick, aidan, dylan, joe, sham]:
+    for user in [bob, rick, aidan]:
         user.role = "landlord"
 
     # Add apartments

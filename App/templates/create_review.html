@@ -3,7 +3,7 @@
 {% block content %}
   <div class="container">
     <h2>Leave a Review for “{{ apartment.title }}”</h2>
-    {% if current_user.is_authenticated and current_user.is_verified_tenant %}
+    {% if is_authenticated and current_user.is_verified %}
       <form action="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" method="post">
         <div class="input-field">
           <select id="rating" name="rating" required>
@@ -23,8 +23,13 @@
         <button class="btn waves-effect waves-light" type="submit">Submit Review</button>
       </form>
     {% else %}
-      <p>pthuey</p>
-    {% endfor %}
+      <p>You must be a verified tenant to leave a review.</p>
+      {% if not current_user.is_authenticated %}
+        <p><a href="{{ url_for('auth_views.login_view') }}">Login</a> to leave a review.</p>
+      {% elif not current_user.is_verified %}
+        <p>Your account needs to be verified by a landlord before you can post reviews.</p>
+      {% endif %}
+    {% endif %}
   </div>
 
   <script>

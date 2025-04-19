@@ -7,10 +7,14 @@
 <div class="section center-align">
     {% if is_authenticated %}
         <h4 class="purple-text text-darken-3">Welcome, {{ current_user.username }}!</h4>
+        <div class="text-center my-4">
+            <a href="{{ url_for('index_views.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
     {% endif %}
     <h4 class="purple-text text-darken-3">Find Your Perfect Apartment Here 
         <a href="{{ url_for('index_views.search') }}" class="card hoverable center-align teal waves-effect white-text" style="border-radius: 50% ;padding: 10px;">🔍</a>
     </h4>
+    
     <p class="flow-text">Discover apartments with verified tenant reviews. Make an informed decision about your next home.</p>
 </div>
 
