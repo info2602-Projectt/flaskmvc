@@ -11,7 +11,7 @@ from App.controllers.apartment import (
     update_apartment
 )
 from App.controllers.review import create_review
-from App.models import Amenity
+from App.models import Amenity, User
 from App.database import db
 
 apartment_views = Blueprint('apartment_views', __name__, template_folder='../templates')
@@ -24,6 +24,17 @@ def list_apartments():
 @apartment_views.route('/apartments/create', methods=['GET', 'POST'])
 @jwt_required()
 def create_listing():
+    raw_user = get_jwt_identity()
+    try:
+        user_id = int(raw_user)
+    except (TypeError, ValueError):
+        user_id = None
+
+    user = User.query.get(user_id)
+    if not user or user.role != 'landlord':
+        flash('Only landlords can create listings.', 'error')
+        return redirect(url_for('apartment_views.list_apartments'))
+
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
@@ -43,10 +54,17 @@ def create_listing():
             image_filename = filename
             image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
-        owner_id = get_jwt_identity()
         apartment = create_apartment(
-            title, description, address, city, state, zip_code, price,
-            bedrooms, bathrooms, owner_id,
+            title,
+            description,
+            address,
+            city,
+            state,
+            zip_code,
+            price,
+            bedrooms,
+            bathrooms,
+            user_id,
             square_feet=square_feet,
             image_filename=image_filename
         )
@@ -81,9 +99,12 @@ def leave_review(apartment_id):
         return redirect(url_for('apartment_views.list_apartments'))
 
     if request.method == 'POST':
+        try:
+            user_id = int(get_jwt_identity())
+        except (TypeError, ValueError):
+            user_id = None
         rating = int(request.form.get('rating'))
         comment = request.form.get('comment')
-        user_id = get_jwt_identity()
         create_review(apartment_id, user_id, rating, comment)
         flash('Review submitted!', 'success')
         return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
@@ -93,32 +114,35 @@ def leave_review(apartment_id):
 @apartment_views.route('/apartments/<int:apartment_id>/edit', methods=['GET', 'POST'])
 @jwt_required()
 def edit_listing(apartment_id):
-    apartment = get_apartment(apartment_id)
-
-    raw_user = get_jwt_identity()
+    # Only landlords may edit listings
     try:
-        user_id = int(raw_user)
+        user_id = int(get_jwt_identity())
     except (TypeError, ValueError):
         user_id = None
 
+    user = User.query.get(user_id)
+    if not user or user.role != 'landlord':
+        flash('Only landlords can edit listings.', 'error')
+        return redirect(url_for('apartment_views.list_apartments'))
+
+    apartment = get_apartment(apartment_id)
     if not apartment or apartment.owner_id != user_id:
         flash('You do not have permission to edit this listing.', 'error')
         return redirect(url_for('apartment_views.list_apartments'))
 
     if request.method == 'POST':
         data = {
-            'title':       request.form['title'],
+            'title': request.form['title'],
             'description': request.form['description'],
-            'address':     request.form['address'],
-            'city':        request.form['city'],
-            'state':       request.form['state'],
-            'zip_code':    request.form['zip_code'],
-            'price':       request.form['price'],
-            'bedrooms':    request.form['bedrooms'],
-            'bathrooms':   request.form['bathrooms'],
+            'address': request.form['address'],
+            'city': request.form['city'],
+            'state': request.form['state'],
+            'zip_code': request.form['zip_code'],
+            'price': request.form['price'],
+            'bedrooms': request.form['bedrooms'],
+            'bathrooms': request.form['bathrooms'],
             'square_feet': request.form.get('square_feet') or None
         }
-
         image = request.files.get('image')
         if image and image.filename:
             filename = secure_filename(image.filename)
@@ -126,7 +150,6 @@ def edit_listing(apartment_id):
             data['image_filename'] = filename
 
         update_apartment(apartment_id, **data)
-
         apartment.amenities.clear()
         for a_id in request.form.getlist('amenities'):
             amenity = Amenity.query.get(a_id)
