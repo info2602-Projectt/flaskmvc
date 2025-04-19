@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 import os
-from App.models import User
+from App.models import User, Amenity
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from App.controllers.apartment import (
@@ -10,8 +10,7 @@ from App.controllers.apartment import (
     get_apartment,
     update_apartment
 )
-from App.controllers.review import create_review
-from App.models import Amenity, User
+from App.controllers.review import create_review, get_review, delete_review
 from App.database import db
 
 apartment_views = Blueprint('apartment_views', __name__, template_folder='../templates')
@@ -94,31 +93,56 @@ def view_apartment(apartment_id):
 @apartment_views.route('/apartments/<int:apartment_id>/review', methods=['GET', 'POST'])
 @jwt_required()
 def leave_review(apartment_id):
-    user_id = get_jwt_identity()
+    identity = get_jwt_identity()
+    if isinstance(identity, dict):
+        user_id = identity.get('id')
+    else:
+        user_id = int(identity)
+
     user = User.query.get(user_id)
     apartment = get_apartment(apartment_id)
 
     if not user or not user.is_verified:
         flash('You are not a verified tenant, cannot leave review', 'error')
-        return redirect(url_for('apartment_views.list_apartments', is_verified=user.is_verified))
+        return redirect(url_for('apartment_views.list_apartments'))
 
     if request.method == 'POST':
-        try:
-            user_id = int(get_jwt_identity())
-        except (TypeError, ValueError):
-            user_id = None
         rating = int(request.form.get('rating'))
         comment = request.form.get('comment')
         create_review(apartment_id, user_id, rating, comment)
         flash('Review submitted!', 'success')
         return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
 
-    return render_template('create_review.html', apartment=apartment, is_verified=user.is_verified)
+    return render_template('create_review.html', apartment=apartment)
+
+@apartment_views.route(
+    '/apartments/<int:apartment_id>/review/<int:review_id>/delete',
+    methods=['POST']
+)
+@jwt_required()
+def remove_review(apartment_id, review_id):
+    identity = get_jwt_identity()
+    if isinstance(identity, dict):
+        current_user_id = identity.get('id')
+    else:
+        current_user_id = int(identity)
+
+    review = get_review(review_id)
+    if not review or review.user_id != current_user_id:
+        flash('You do not have permission to delete this review.', 'error')
+    else:
+        delete_review(review_id)
+        flash('Review deleted successfully!', 'success')
+
+    next_page = request.form.get('next', None)
+    if next_page:
+        return redirect(next_page)
+
+    return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
 
 @apartment_views.route('/apartments/<int:apartment_id>/edit', methods=['GET', 'POST'])
 @jwt_required()
 def edit_listing(apartment_id):
-    # Only landlords may edit listings
     try:
         user_id = int(get_jwt_identity())
     except (TypeError, ValueError):
