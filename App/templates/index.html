@@ -62,7 +62,7 @@
                     <div class="card medium hoverable">
                         {% if apartment.image_filename %}
                         <div class="card-image">
-                            <img src="{{ url_for('static', filename='uploads/' + apartment.image_filename) }}" alt="{{ apartment.title }}">
+                            <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">    
                         </div>
                         {% endif %}
                         <div class="card-content">
@@ -71,7 +71,7 @@
                             <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
                             <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, 
                                {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
-                            <p>{{ apartment.description|truncate(100) }}</p>
+                            <p>{{ apartment.description }}</p>
                             <div class="section">
                                 {% for amenity in apartment.amenities[:3] %}
                                     <div class="chip">{{ amenity.name }}</div>
@@ -88,11 +88,8 @@
                 </div>
             {% endfor %}
         </div>
-        <div class="center-align section">
-            <a href="{{ url_for('index_views.search') }}" class="btn-flat purple-text text-darken-3">View All Listings</a>
-        </div>
     {% else %}
-        <div class="card-panel yellow lighten-4">
+        <div class="card-panel grey">
             No apartment listings available yet. Be the first to 
             <a href="{{ url_for('apartment_views.create_listing') }}" class="purple-text text-darken-3">
                 create a listing

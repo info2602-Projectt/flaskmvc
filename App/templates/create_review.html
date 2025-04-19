@@ -3,24 +3,28 @@
 {% block content %}
   <div class="container">
     <h2>Leave a Review for “{{ apartment.title }}”</h2>
-    <form action="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" method="post">
-      <div class="input-field">
-        <select id="rating" name="rating" required>
-          <option value="" disabled selected>Choose your rating</option>
-          {% for i in range(1,6) %}
-            <option value="{{ i }}">{{ i }} star{% if i > 1 %}s{% endif %}</option>
-          {% endfor %}
-        </select>
-        <label for="rating">Rating</label>
-      </div>
+    {% if current_user.is_authenticated and current_user.is_verified_tenant %}
+      <form action="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" method="post">
+        <div class="input-field">
+          <select id="rating" name="rating" required>
+            <option value="" disabled selected>Choose your rating</option>
+            {% for i in range(1,6) %}
+              <option value="{{ i }}">{{ i }} star{% if i > 1 %}s{% endif %}</option>
+            {% endfor %}
+          </select>
+          <label for="rating">Rating</label>
+        </div>
 
-      <div class="input-field">
-        <textarea id="comment" name="comment" class="materialize-textarea" required></textarea>
-        <label for="comment">Comment</label>
-      </div>
+        <div class="input-field">
+          <textarea id="comment" name="comment" class="materialize-textarea" required></textarea>
+          <label for="comment">Comment</label>
+        </div>
 
-      <button class="btn waves-effect waves-light" type="submit">Submit Review</button>
-    </form>
+        <button class="btn waves-effect waves-light" type="submit">Submit Review</button>
+      </form>
+    {% else %}
+      <p>I HATE YOU</p>
+    {% endfor %}
   </div>
 
   <script>

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 import os
-
+from App.models import User
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from App.controllers.apartment import (
@@ -72,9 +72,10 @@ def create_listing():
         amenity_ids = request.form.getlist('amenities')
         for a_id in amenity_ids:
             amenity = Amenity.query.get(a_id)
-            if amenity:
+            if amenity and amenity not in apartment.amenities:
                 apartment.amenities.append(amenity)
         db.session.commit()
+
 
         flash('Listing created successfully!', 'success')
         return redirect(url_for('apartment_views.list_apartments'))
@@ -93,10 +94,13 @@ def view_apartment(apartment_id):
 @apartment_views.route('/apartments/<int:apartment_id>/review', methods=['GET', 'POST'])
 @jwt_required()
 def leave_review(apartment_id):
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
     apartment = get_apartment(apartment_id)
-    if not apartment:
-        flash('Listing not found', 'error')
-        return redirect(url_for('apartment_views.list_apartments'))
+
+    if not user or not user.is_verified:
+        flash('You are not a verified tenant, cannot leave review', 'error')
+        return redirect(url_for('apartment_views.list_apartments', is_verified=user.is_verified))
 
     if request.method == 'POST':
         try:
@@ -109,7 +113,7 @@ def leave_review(apartment_id):
         flash('Review submitted!', 'success')
         return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
 
-    return render_template('create_review.html', apartment=apartment)
+    return render_template('create_review.html', apartment=apartment, is_verified=user.is_verified)
 
 @apartment_views.route('/apartments/<int:apartment_id>/edit', methods=['GET', 'POST'])
 @jwt_required()
