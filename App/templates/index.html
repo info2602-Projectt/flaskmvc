@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div class="card-action">
-                            <a href="{{ url_for('view_apartment', apartment_id=apartment.id) }}" class="purple-text text-darken-3">View Details</a>
+                            <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}">View Details</a>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,9 @@
     {% else %}
         <div class="card-panel yellow lighten-4">
             No apartment listings available yet. Be the first to 
-            <a href="{{ url_for('user.create_view') }}" class="purple-text text-darken-3">create a listing</a>!
+            <a href="{{ url_for('apartment_views.create_listing') }}" class="purple-text text-darken-3">
+                create a listing
+              </a>              
         </div>
     {% endif %}
 </div>

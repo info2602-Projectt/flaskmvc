@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% block title %}{{ apartment.title }}{% endblock %}
+{% block content %}
+  <div class="container">
+    <h2>{{ apartment.title }}</h2>
+    {% if apartment.image_filename %}
+      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}" alt="{{ apartment.title }}" class="responsive-img">
+    {% endif %}
+    <p>{{ apartment.description }}</p>
+    <ul>
+      <li><strong>Address:</strong> {{ apartment.address }}, {{ apartment.city }}, {{ apartment.state }} {{ apartment.zip_code }}</li>
+      <li><strong>Price:</strong> ${{ apartment.price }}</li>
+      <li><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
+      <li><strong>Bathrooms:</strong> {{ apartment.bathrooms }}</li>
+      {% if apartment.square_feet %}
+        <li><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>
+      {% endif %}
+      {% if apartment.amenities %}
+        <li><strong>Amenities:</strong> {{ apartment.amenities|map(attribute='name')|join(', ') }}</li>
+      {% endif %}
+    </ul>
+    <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn">Back to Listings</a>
+  </div>
+{% endblock %}
