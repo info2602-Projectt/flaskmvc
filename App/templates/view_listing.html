@@ -4,7 +4,12 @@
   <div class="container">
     <h2>{{ apartment.title }}</h2>
     {% if apartment.image_filename %}
-      <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}" class="responsive-img">
+  {# detect external URL by looking for http:// or https:// #}
+  {% if apartment.image_filename.startswith('http') %}
+    <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}" class="responsive-img">
+    {% else %}
+      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}" alt="{{ apartment.title }}" class="responsive-img">
+    {% endif %}
     {% endif %}
     <p>{{ apartment.description }}</p>
     <ul>

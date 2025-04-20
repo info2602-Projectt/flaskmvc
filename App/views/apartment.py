@@ -173,11 +173,18 @@ def edit_listing(apartment_id):
             'bathrooms': request.form['bathrooms'],
             'square_feet': request.form.get('square_feet') or None
         }
+        
         image = request.files.get('image')
         if image and image.filename:
-            filename = secure_filename(image.filename)
-            image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
-            data['image_filename'] = filename
+                old_fn = apartment.image_filename
+                if old_fn:
+                    old_path = os.path.join(current_app.config['UPLOAD_FOLDER'], old_fn)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+
+                filename = secure_filename(image.filename)
+                image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                data['image_filename'] = filename
 
         update_apartment(apartment_id, **data)
         apartment.amenities.clear()
@@ -217,6 +224,11 @@ def delete_listing(apartment_id):
         if not user.check_password(password):
             flash('Incorrect password. Please try again.', 'error')
             return render_template('confirm_delete_listing.html', apartment=apartment)
+        fn = apartment.image_filename
+        if fn:
+            path = os.path.join(current_app.config['UPLOAD_FOLDER'], fn)
+            if os.path.exists(path):
+                os.remove(path)
         delete_apartment(apartment_id)
         flash('Listing deleted successfully.', 'success')
         return redirect(url_for('index_views.dashboard'))
