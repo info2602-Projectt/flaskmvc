@@ -37,12 +37,25 @@
       <div class="dashboard-card">
         <h4 class="mb-2">Verify a Tenant</h4>
         <form method="POST" action="{{ url_for('index_views.verify_by_username') }}">
+          <!-- username -->
           <div class="input-field">
             <input type="text" name="username" id="username" class="validate" required>
             <label for="username">Enter tenant's username to verify</label>
           </div>
-          <button class="btn-pill waves-effect waves-light green" type="submit">Verify&nbsp;Tenant</button>
-        </form>
+        
+          <div class="input-field">
+            <select name="apartment_id" class="browser-default" required>
+              <option value="" disabled selected>Select listing…</option>
+              {% for listing in listings %}
+                <option value="{{ listing.id }}">{{ listing.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        
+          <button class="btn-pill waves-effect waves-light green" type="submit">
+            Verify&nbsp;Tenant
+          </button>
+        </form>        
       </div>
     {% endif %}
 
@@ -71,7 +84,6 @@
                   <td>{{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</td>
                   <td>{{ listing.reviews|length }}</td>
                   <td>
-                    <!-- circular action icons -->
                     <a href="{{ url_for('apartment_views.view_apartment', apartment_id=listing.id) }}" class="action‑icon blue">
                       <i class="material-icons">visibility</i>
                     </a>

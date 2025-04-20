@@ -6,7 +6,7 @@ from .auth import auth_views
 from .apartment import apartment_views
 from .admin import setup_admin
 from flask_jwt_extended import JWTManager
-from App.models import User  # make sure User is imported
+from App.models import User
 
 def setup_jwt(app):
     jwt = JWTManager(app)

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, jsonify, request, session, flash, redirect, url_for
 from App.controllers import initialize
 from sqlalchemy import or_
-from App.models import Apartment, Review, User, db
+from App.models import Apartment, Review, User, db, VerifiedTenant
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
@@ -87,10 +87,8 @@ def search():
 @index_views.route('/dashboard')
 @jwt_required()
 def dashboard():
-    # Decode JWT to get the user information
-    current_user = get_jwt_identity()  # Returns a dictionary with 'id' and 'username'
+    current_user = get_jwt_identity()
     
-    # Use the 'id' to query the user from the database
     user = User.query.get(current_user)
     
     if user.role == 'landlord':
@@ -105,23 +103,36 @@ def dashboard():
 @index_views.route('/verify_by_username', methods=['POST'])
 @jwt_required()
 def verify_by_username():
-    # Decode JWT to get the user information
-    current_user = get_jwt_identity()  # Returns a dictionary with 'id' and 'username'
+    landlord_id = get_jwt_identity()           # landlord’s user id
+    landlord    = User.query.get(landlord_id)
 
-    # Use the 'id' to query the user from the database
-    user = User.query.get(current_user)
+    apartment_id = request.form.get('apartment_id', type=int)
+    apartment    = Apartment.query.get_or_404(apartment_id)
 
- 
-    # Get the tenant username from the form
+    if apartment.owner_id != landlord.id:
+        flash("That’s not your listing.", "error")
+        return redirect(url_for('index_views.dashboard'))
+
     username = request.form.get('username')
-    tenant = User.query.filter_by(username=username, role='tenant').first()
+    tenant   = User.query.filter_by(username=username, role='tenant').first()
+    if not tenant:
+        flash("User not found or not a tenant.", "error")
+        return redirect(url_for('index_views.dashboard'))
 
-    # Verify the tenant and update their status
-    if tenant:
-        tenant.is_verified = True
+    exists = VerifiedTenant.query.get((apartment.id, tenant.id))
+    if not exists:
+        vt = VerifiedTenant(apartment_id=apartment.id,
+                            tenant_id=tenant.id,
+                            verified_by=landlord.id)
+        db.session.add(vt)
+
+        if not tenant.is_verified:
+            tenant.is_verified = True
+
         db.session.commit()
-        flash(f'{tenant.username} has been verified.', 'success')
+        flash(f"{tenant.username} is now verified for “{apartment.title}”.",
+              "success")
     else:
-        flash('User not found or not a tenant.', 'danger')
+        flash("Tenant already verified for this listing.", "info")
 
     return redirect(url_for('index_views.dashboard'))
