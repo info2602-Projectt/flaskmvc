@@ -22,6 +22,9 @@ def initialize():
     for user in [bob, rick, aidan]:
         user.role = "landlord"
 
+    for user in [john, sham, joe, dylan]:
+        user.role = "tenant"
+
     # Add apartments
     apartments = [
         Apartment(
