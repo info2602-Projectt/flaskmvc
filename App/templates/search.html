@@ -10,11 +10,13 @@
             <div class="card-content">
                 <span class="card-title">Filter Results</span>
                 <form method="POST" action="{{ url_for('index_views.search') }}">
+                    <!-- Location -->
                     <div class="input-field">
                         <input type="text" name="location" id="location">
                         <label for="location">Location (City)</label>
                     </div>
 
+                    <!-- Price -->
                     <div class="row">
                         <div class="input-field col s6">
                             <input type="number" name="min_price" id="min_price" min="0">
@@ -26,6 +28,7 @@
                         </div>
                     </div>
 
+                    <!-- Bedrooms & Bathrooms -->
                     <div class="row">
                         <div class="input-field col s6">
                             <select name="bedrooms">
@@ -36,7 +39,6 @@
                             </select>
                             <label>Bedrooms</label>
                         </div>
-
                         <div class="input-field col s6">
                             <select name="bathrooms">
                                 <option value="" selected>Any</option>
@@ -48,11 +50,13 @@
                         </div>
                     </div>
 
+                    <!-- Amenities -->
                     <div class="section">
                         <p><strong>Amenities</strong></p>
                         <div class="row">
                             {% set amenities = [
-                                ('has_ac', 'Air Conditioning'),
+                                ('has_ac', 'AC'),
+                                ('has_wifi', 'WiFi'),
                                 ('has_washer_dryer', 'Washer'),
                                 ('has_parking', 'Parking'),
                                 ('has_gym', 'Gym'),
@@ -71,6 +75,7 @@
                         </div>
                     </div>
 
+                    <!-- Submit -->
                     <div class="center">
                         <button type="submit" class="btn-small purple">Search</button>
                     </div>
@@ -80,7 +85,7 @@
     </div>
 
     <!-- Results Section -->
-    <div class="col s12 m4 l8">
+    <div class="col s12 m8">
         <div class="row">
             <div class="col s12">
                 <h5>Search Results</h5>
@@ -93,56 +98,67 @@
         </div>
 
         {% if results %}
-            <div class="row">
-                {% for apartment in results %}
-                <div class="col s12 m6">
-                    <div class="card medium">
-                        {% if apartment.image_filename %}
-                        <div class="card-image">
-                            <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">  
-                        </div>
-                        {% endif %}
-                        <div class="card-content">
-                            <span class="card-title">{{ apartment.title }}</span>
-                            <p class="grey-text">{{ apartment.city }}, {{ apartment.state }}</p>
-                            <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
-                            <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
-                            <p>{{ apartment.description|truncate(100) }}</p>
-
-                            <div class="section">
-                                {% for amenity in apartment.amenities[:3] %}
-                                    <div class="chip">{{ amenity.name }}</div>
-                                {% endfor %}
-                                {% if apartment.amenities|length > 3 %}
-                                    <div class="chip">+{{ apartment.amenities|length - 3 }} more</div>
-                                {% endif %}
-                            </div>
-
-                            {% if apartment.reviews %}
-                                <div class="section">
-                                    {% set avg = apartment.reviews|map(attribute='rating')|sum / apartment.reviews|length %}
-                                    <div>
-                                        {% for i in range(5) %}
-                                            {% if i < avg|int %}
-                                                <i class="material-icons yellow-text text-darken-2">star</i>
-                                            {% elif avg - i > 0 and avg - i < 1 %}
-                                                <i class="material-icons yellow-text text-darken-2">star_half</i>
-                                            {% else %}
-                                                <i class="material-icons">star_border</i>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <span>{{ "%.1f"|format(avg) }} ({{ apartment.reviews|length }})</span>
-                                    </div>
-                                </div>
+        <div class="row" style="display: flex; flex-wrap: wrap;">
+            {% for apartment in results %}
+            <div class="col s12 m6">
+                <div class="card hoverable" style="display: flex; flex-direction: column; height: 100%;">
+                    
+                    {% if apartment.image_filename %}
+                    <div class="card-image">
+                        <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}">
+                    </div>
+                    {% endif %}
+            
+                    <!-- This grows to fill available space -->
+                    <div class="card-content" style="flex-grow: 1;">
+                        <span class="card-title">{{ apartment.title }}</span>
+                        <p class="grey-text">{{ apartment.city }}, {{ apartment.state }}</p>
+                        <p><strong>${{ "%.2f"|format(apartment.price) }}/month</strong></p>
+                        <p>{{ apartment.bedrooms }} bed{% if apartment.bedrooms != 1 %}s{% endif %}, {{ apartment.bathrooms }} bath{% if apartment.bathrooms != 1 %}s{% endif %}</p>
+                        <p>{{ apartment.description|truncate(100) }}</p>
+            
+                        <!-- Amenities -->
+                        <div class="section">
+                            {% for amenity in apartment.amenities[:3] %}
+                                <div class="chip">{{ amenity.name }}</div>
+                            {% endfor %}
+                            {% if apartment.amenities|length > 3 %}
+                                <div class="chip">+{{ apartment.amenities|length - 3 }} more</div>
                             {% endif %}
                         </div>
-                        <div class="card-action">
-                            <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}" class="btn-small blue">View Details</a>
+                    </div>
+            
+                    <!-- Reviews fixed near bottom -->
+                    {% if apartment.reviews %}
+                    <div class="card-content" style="padding-top: 0; padding-bottom: 0;">
+                        <div style="display: flex; align-items: center;">
+                            {% set avg = apartment.reviews|map(attribute='rating')|sum / apartment.reviews|length %}
+                            {% for i in range(5) %}
+                                {% if i < avg|int %}
+                                    <i class="material-icons yellow-text text-darken-2">star</i>
+                                {% elif avg - i > 0 and avg - i < 1 %}
+                                    <i class="material-icons yellow-text text-darken-2">star_half</i>
+                                {% else %}
+                                    <i class="material-icons">star_border</i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-1">{{ "%.1f"|format(avg) }} ({{ apartment.reviews|length }})</span>
                         </div>
                     </div>
+                    {% endif %}
+            
+                    <!-- View Details at very bottom -->
+                    <div class="card-action">
+                        <a href="{{ url_for('apartment_views.view_apartment', apartment_id=apartment.id) }}" class="btn-small blue">
+                            View Details
+                        </a>
+                    </div>
+            
                 </div>
-                {% endfor %}
             </div>
+
+            {% endfor %}
+        </div>
         {% elif method == 'POST' %}
             <div class="card-panel yellow lighten-4">
                 <p>No apartments match your search criteria. Try adjusting your filters.</p>

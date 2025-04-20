@@ -188,10 +188,12 @@ def initialize():
 
     # Add reviews
     db.session.add_all([
-        Review(rating=4, comment="Nice and cozy!", apartment_id=apartments[0].id, user_id=joe.id),
+        Review(rating=4, comment="Nice and cozy!", apartment_id=apartments[0].id, user_id=sham.id),
         Review(rating=5, comment="Loved the location.", apartment_id=apartments[2].id, user_id=sham.id),
         Review(rating=3, comment="Decent for students.", apartment_id=apartments[3].id, user_id=john.id),
-        Review(rating=2, comment="Bit too noisy at night.", apartment_id=apartments[7].id, user_id=joe.id)
+        Review(rating=3, comment="Landlord is a bit rude.", apartment_id=apartments[7].id, user_id=sham.id),
+        Review(rating=1, comment="Worst Place EVER!!!", apartment_id=apartments[5].id, user_id=sham.id),
+        Review(rating=4, comment="Not too shabby.", apartment_id=apartments[6].id, user_id=sham.id)
     ])
 
     db.session.commit()
