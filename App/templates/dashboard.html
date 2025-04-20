@@ -103,42 +103,70 @@
         </div>
       {% else %}
         <p>No listings yet.</p>
-        <a href="{{ url_for('apartment_views.create_listing') }}" class="btn-pill waves-effect waves-light blue">Create Your First Listing</a>
+        <a href="{{ url_for('apartment_views.create_listing') }}" class="btn-pill waves-effect waves-light blue" style="color: aliceblue;">Create Your First Listing</a>
       {% endif %}
     </div>
-
     <!-- ─────────────────────── TENANT REVIEWS ────────────────────── -->
     {% if current_user.role != 'landlord' %}
-      <div class="dashboard-card">
-        <h4 class="mb-3">Your Reviews</h4>
-        {% if reviews %}
-          <div class="row">
-            {% for review in reviews %}
-              <div class="col s12 m6 l4">
-                <div class="card">
-                  <div class="card-content">
-                    <span class="card-title">Review for: {{ review.apartment.title }}</span>
-                    <p>{% for i in range(review.rating) %}★{% endfor %} {{ review.comment }}</p>
-                    <small>Posted on {{ review.created_at.strftime('%B %-d, %Y') }}</small>
-                  </div>
-                  <div class="card-action">
-                    <a href="{{ url_for('apartment_views.view_apartment', apartment_id=review.apartment_id) }}" class="btn-flat">View Apartment</a>
-                    {% if review.user_id == current_user.id %}
-                      <form method="POST" action="{{ url_for('apartment_views.remove_review', apartment_id=review.apartment_id, review_id=review.id) }}" style="display:inline">
-                        <button type="submit" class="btn-flat red-text"><i class="material-icons left">delete</i>Delete</button>
-                      </form>
-                    {% endif %}
-                  </div>
+    <div class="dashboard-card">
+      <h4 class="mb-3">Your Reviews</h4>
+
+      {% if reviews %}
+        <div class="row">
+          {% for review in reviews %}
+            <div class="col s12 m6 l4">
+              <!-- NEW modern card -->
+              <div class="dashboard-review">
+                <div>
+                  <h6>Review for: {{ review.apartment.title }}</h6>
+
+                  <!-- stars -->
+                  <p class="rating">
+                    {% for _ in range(review.rating) %}
+                      <i class="material-icons tiny">star</i>
+                    {% endfor %}
+                  </p>
+
+                  <p class="mb-2">{{ review.comment }}</p>
+                  <small class="grey-text">
+                    Posted on {{ review.created_at.strftime('%B %d, %Y') }}
+                  </small>
                 </div>
+
+                <footer>
+                  <a href="{{ url_for('apartment_views.view_apartment',
+                                      apartment_id=review.apartment_id) }}"
+                     class="action‑icon blue">
+                    <i class="material-icons">visibility</i>
+                  </a>
+                
+                  {% if review.user_id == current_user.id %}
+                  <form method="POST"
+                  action="{{ url_for('apartment_views.remove_review',
+                                     apartment_id=review.apartment_id,
+                                     review_id=review.id) }}"
+                  style="display:inline">
+                    <input type="hidden" name="next" value="{{ url_for('index_views.dashboard') }}">
+                    <button type="submit" class="action‑icon red">
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </footer>
               </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p>No reviews yet.</p>
-          <a href="{{ url_for('index_views.search') }}" class="btn-pill waves-effect waves-light blue">Find Apartments to Review</a>
-        {% endif %}
-      </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>No reviews yet.</p>
+        <a href="{{ url_for('index_views.search') }}"
+          class="btn-pill waves-effect waves-light blue" style="color: aliceblue;">
+          Find Apartments to Review
+        </a>
+      {% endif %}
+    </div>
     {% endif %}
+
   </div>
 </div>
 {% endblock %}

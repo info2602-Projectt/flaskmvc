@@ -163,7 +163,7 @@ def remove_review(apartment_id, review_id):
         flash("Review deleted successfully!", "success")
 
     next_page = request.form.get("next")
-    return redirect(next_page) if next_page else redirect(url_for("apartment_views.view_apartment", apartment_id=apartment_id))
+    return redirect(next_page or url_for("index_views.dashboard"))
 
 
 # ────────────────────────────────────────────────────────────────────────────────
