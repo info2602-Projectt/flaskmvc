@@ -4,136 +4,129 @@
 
 {% block content %}
 <div class="row">
-    <div class="col s12 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h2 class="mb-0">
-                    {{ 'Landlord Dashboard' if current_user.role == 'landlord' else 'Tenant Dashboard' }}
-                </h2>
-                {% if current_user.role == 'landlord' %}
-                    <a href="{{ url_for('apartment_views.create_listing') }}" class="btn waves-effect waves-light blue">
-                        <i class="material-icons left">add</i>Create New Listing
-                    </a>
-                {% endif %}
-            </div>
-
-            <div class="card-content">
-                <div class="card-panel teal lighten-2">
-                    <h5>Welcome, {{ current_user.username }}!</h5>
-                    <p class="mb-0">
-                        {% if current_user.role == 'landlord' %}
-                            You can create and manage apartment listings.
-                        {% elif current_user.is_verified %}
-                            You can post reviews for apartments.
-                        {% else %}
-                            Your account needs to be verified before posting reviews.
-                            <div class="mt-2">
-                                <span class="badge amber darken-3">Verification Pending</span>
-                            </div>
-                        {% endif %}
-                    </p>
-                </div>
-
-                {% if current_user.role == 'landlord' %}
-                    <h3 class="mt-4 mb-3">Verify a Tenant</h3>
-                    <div class="card">
-                        <div class="card-content">
-                            <form method="POST" action="{{ url_for('index_views.verify_by_username') }}">
-                                <div class="input-field">
-                                    <input type="text" name="username" id="username" class="validate" required>
-                                    <label for="username">Enter tenant's username to verify</label>
-                                </div>
-                                <button class="btn waves-effect waves-light green" type="submit">Verify Tenant</button>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
-
-                <h3 class="mt-4 mb-3">Your Apartment Listings</h3>
-                {% if listings %}
-                    <div class="responsive-table">
-                        <table class="striped">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Location</th>
-                                    <th>Price</th>
-                                    <th>Beds/Baths</th>
-                                    <th>Reviews</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for listing in listings %}
-                                    <tr>
-                                        <td>{{ listing.title }}</td>
-                                        <td>{{ listing.city }}, {{ listing.state }}</td>
-                                        <td>${{ "%.2f"|format(listing.price) }}/month</td>
-                                        <td>{{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</td>
-                                        <td>{{ listing.reviews|length }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ url_for('apartment_views.view_apartment', apartment_id=listing.id) }}" class="btn-small waves-effect waves-light light-blue">
-                                                    View
-                                                </a>
-                                                <a href="{{ url_for('apartment_views.edit_listing', apartment_id=listing.id) }}" class="btn-small waves-effect waves-light orange">
-                                                    Edit
-                                                </a>
-                                                <a href="{{ url_for('apartment_views.delete_listing', apartment_id=listing.id) }}" class="btn-small waves-effect waves-light red">
-                                                    <i class="material-icons left">delete</i> Delete
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="card-panel light-grey lighten-4">
-                        <p>No listings yet.</p>
-                        <a href="{{ url_for('apartment_views.create_listing') }}" class="btn waves-effect waves-light blue">Create Your First Listing</a>
-                    </div>
-                {% endif %}
-
-                {# --- Tenant Reviews --- #}
-                {% if current_user.role != 'landlord' %}
-                    {% if reviews %}
-                        <h3 class="mt-4 mb-3">Your Reviews</h3>
-                        <div class="row">
-                            {% for review in reviews %}
-                                <div class="card mb-2">
-                                    <div class="card-content">
-                                        <span class="card-title">Review for: {{ review.apartment.title }}</span>
-                                        <p>
-                                            {% for i in range(review.rating) %}★{% endfor %}
-                                            {{ review.comment }}
-                                        </p>
-                                        <small>Posted on {{ review.created_at.strftime('%B %-d, %Y') }}</small>
-                                    </div>
-                                    <div class="card-action">
-                                        <a href="{{ url_for('apartment_views.view_apartment', apartment_id=review.apartment_id) }}" class="btn-flat">View Apartment</a>
-                                        {% if review.user_id == current_user.id %}
-                                        <form method="POST"
-                                            action="{{ url_for('apartment_views.remove_review', apartment_id=review.apartment_id, review_id=review.id) }}" style="display:inline">
-                                            <input type="hidden" name="next" value="{{ url_for('index_views.dashboard') }}">
-                                            <button type="submit" class="btn-small red-text">
-                                            <i class="material-icons left">delete</i>Delete</button>
-                                        </form>                              
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="card-panel light-grey lighten-4 mt-4">
-                            <p>No reviews yet.</p>
-                            <a href="{{ url_for('index_views.search') }}" class="btn waves-effect waves-light blue">Find Apartments to Review</a>
-                        </div>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
+  <div class="col s12 mb-4">
+    <!-- ───────────────────────── TOP CARD ───────────────────────── -->
+    <div class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">
+          {{ 'Landlord Dashboard' if current_user.role == 'landlord' else 'Tenant Dashboard' }}
+        </h2>
+        {% if current_user.role == 'landlord' %}
+          <a href="{{ url_for('apartment_views.create_listing') }}" class="btn-pill waves-effect waves-light blue" style="color: aliceblue;">
+            Create New Listing
+          </a>
+        {% endif %}
+      </div>
     </div>
+
+    <!-- ──────────────────── WELCOME / STATUS CARD ─────────────────── -->
+    <div class="dashboard-card teal lighten-2 white-text">
+      <h5 class="mt-0">Welcome, {{ current_user.username }}!</h5>
+      {% if current_user.role == 'landlord' %}
+        <p class="mb-0">You can create and manage apartment listings.</p>
+      {% elif current_user.is_verified %}
+        <p class="mb-0">You can post reviews for apartments.</p>
+      {% else %}
+        <p class="mb-0">Your account needs to be verified before posting reviews.</p>
+        <span class="badge amber darken-3 mt-1">Verification Pending</span>
+      {% endif %}
+    </div>
+
+    <!-- ─────────────────────── VERIFY TENANT ─────────────────────── -->
+    {% if current_user.role == 'landlord' %}
+      <div class="dashboard-card">
+        <h4 class="mb-2">Verify a Tenant</h4>
+        <form method="POST" action="{{ url_for('index_views.verify_by_username') }}">
+          <div class="input-field">
+            <input type="text" name="username" id="username" class="validate" required>
+            <label for="username">Enter tenant's username to verify</label>
+          </div>
+          <button class="btn-pill waves-effect waves-light green" type="submit">Verify&nbsp;Tenant</button>
+        </form>
+      </div>
+    {% endif %}
+
+    <!-- ───────────────────── LISTINGS TABLE ──────────────────────── -->
+    <div class="dashboard-card">
+      <h4 class="mb-3">Your Apartment Listings</h4>
+      {% if listings %}
+        <div class="responsive-table">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Beds/Baths</th>
+                <th>Reviews</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for listing in listings %}
+                <tr class="apartment-row">
+                  <td>{{ listing.title }}</td>
+                  <td>{{ listing.city }}, {{ listing.state }}</td>
+                  <td>${{ "%.2f"|format(listing.price) }}/month</td>
+                  <td>{{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</td>
+                  <td>{{ listing.reviews|length }}</td>
+                  <td>
+                    <!-- circular action icons -->
+                    <a href="{{ url_for('apartment_views.view_apartment', apartment_id=listing.id) }}" class="action‑icon blue">
+                      <i class="material-icons">visibility</i>
+                    </a>
+                    <a href="{{ url_for('apartment_views.edit_listing', apartment_id=listing.id) }}" class="action‑icon amber darken-2">
+                      <i class="material-icons">edit</i>
+                    </a>
+                    <form method="POST" action="{{ url_for('apartment_views.delete_listing', apartment_id=listing.id) }}" style="display:inline">
+                      <button type="submit" class="action‑icon red">
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p>No listings yet.</p>
+        <a href="{{ url_for('apartment_views.create_listing') }}" class="btn-pill waves-effect waves-light blue">Create Your First Listing</a>
+      {% endif %}
+    </div>
+
+    <!-- ─────────────────────── TENANT REVIEWS ────────────────────── -->
+    {% if current_user.role != 'landlord' %}
+      <div class="dashboard-card">
+        <h4 class="mb-3">Your Reviews</h4>
+        {% if reviews %}
+          <div class="row">
+            {% for review in reviews %}
+              <div class="col s12 m6 l4">
+                <div class="card">
+                  <div class="card-content">
+                    <span class="card-title">Review for: {{ review.apartment.title }}</span>
+                    <p>{% for i in range(review.rating) %}★{% endfor %} {{ review.comment }}</p>
+                    <small>Posted on {{ review.created_at.strftime('%B %-d, %Y') }}</small>
+                  </div>
+                  <div class="card-action">
+                    <a href="{{ url_for('apartment_views.view_apartment', apartment_id=review.apartment_id) }}" class="btn-flat">View Apartment</a>
+                    {% if review.user_id == current_user.id %}
+                      <form method="POST" action="{{ url_for('apartment_views.remove_review', apartment_id=review.apartment_id, review_id=review.id) }}" style="display:inline">
+                        <button type="submit" class="btn-flat red-text"><i class="material-icons left">delete</i>Delete</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>No reviews yet.</p>
+          <a href="{{ url_for('index_views.search') }}" class="btn-pill waves-effect waves-light blue">Find Apartments to Review</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

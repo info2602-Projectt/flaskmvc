@@ -1,53 +1,52 @@
 {% extends 'layout.html' %}
 {% block title %}{{ apartment.title }}{% endblock %}
+
 {% block content %}
-  <div class="container">
-    <h2>{{ apartment.title }}</h2>
-    {% if apartment.image_filename %}
-  {# detect external URL by looking for http:// or https:// #}
-  {% if apartment.image_filename.startswith('http') %}
-    <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}" class="responsive-img">
-    {% else %}
-      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}" alt="{{ apartment.title }}" class="responsive-img">
-    {% endif %}
-    {% endif %}
-    <p>{{ apartment.description }}</p>
-    <ul>
-      <li><strong>Address:</strong> {{ apartment.address }}, {{ apartment.city }}, {{ apartment.state }} {{ apartment.zip_code }}</li>
-      <li><strong>Price:</strong> ${{ apartment.price }}</li>
-      <li><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
-      <li><strong>Bathrooms:</strong> {{ apartment.bathrooms }}</li>
-      {% if apartment.square_feet %}
-        <li><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>
-      {% endif %}
-      {% if apartment.amenities %}
-        <li><strong>Amenities:</strong> {{ apartment.amenities|map(attribute='name')|join(', ') }}</li>
-      {% endif %}
-    </ul>
+<div class="container">
+  <h2 class="mt-0">{{ apartment.title }}</h2>
 
-    <div class="section">
-      <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" class="btn">Leave a Review</a>
-      {% if is_authenticated and current_user.id == apartment.owner_id %}
-        <a href="{{ url_for('apartment_views.edit_listing', apartment_id=apartment.id) }}" class="btn">Edit Listing</a>
-      {% endif %}
-      <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn-flat">Back to Listings</a>
-    </div>
-
-    <h4 class="section">Reviews</h4>
-    {% if apartment.reviews %}
-      <ul class="collection">
-        {% for review in apartment.reviews %}
-          <li class="collection-item">
-            <div>
-              <strong>{{ review.rating }} star{% if review.rating > 1 %}s{% endif %}</strong> &mdash;
-              {{ review.comment }}
-            </div>
-            <small>Posted on {{ review.created_at.strftime('%Y-%m-%d') }}</small>
-          </li>
-        {% endfor %}
-      </ul>
+  {% if apartment.image_filename %}
+    {% if apartment.image_filename.startswith('http') %}
+      <img src="{{ apartment.image_filename }}" alt="{{ apartment.title }}" class="responsive-img z-depth-1" style="border-radius:12px;">
     {% else %}
-      <p>No reviews yet. <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}">Be the first to review.</a></p>
+      <img src="{{ url_for('static', filename='uploads/' ~ apartment.image_filename) }}" alt="{{ apartment.title }}" class="responsive-img z-depth-1" style="border-radius:12px;">
     {% endif %}
+  {% endif %}
+
+  <p class="flow-text">{{ apartment.description }}</p>
+
+  <ul class="striped">
+    <li><strong>Address:</strong> {{ apartment.address }}, {{ apartment.city }}, {{ apartment.state }} {{ apartment.zip_code }}</li>
+    <li><strong>Price:</strong> ${{ apartment.price }}</li>
+    <li><strong>Bedrooms:</strong> {{ apartment.bedrooms }}</li>
+    <li><strong>Bathrooms:</strong> {{ apartment.bathrooms }}</li>
+    {% if apartment.square_feet %}<li><strong>Square Feet:</strong> {{ apartment.square_feet }}</li>{% endif %}
+    {% if apartment.amenities %}
+      <li><strong>Amenities:</strong> {{ apartment.amenities|map(attribute='name')|join(', ') }}</li>
+    {% endif %}
+  </ul>
+
+  <div class="mt-4">
+    <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}" class="btn-pill waves-effect waves-light teal" style="color: aliceblue;">
+      Leave a Review
+    </a>
+    <a href="{{ url_for('apartment_views.list_apartments') }}" class="btn-flat">Back to Listings</a>
   </div>
+
+  <h4 class="section">Reviews</h4>
+  {% if apartment.reviews %}
+    <ul class="collection">
+      {% for review in apartment.reviews %}
+        <li class="collection-item">
+          <div>
+            <strong>{{ review.rating }} star{% if review.rating > 1 %}s{% endif %}</strong> &mdash; {{ review.comment }}
+          </div>
+          <small>Posted on {{ review.created_at.strftime('%Y-%m-%d') }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No reviews yet. <a href="{{ url_for('apartment_views.leave_review', apartment_id=apartment.id) }}">Be the first to review.</a></p>
+  {% endif %}
+</div>
 {% endblock %}

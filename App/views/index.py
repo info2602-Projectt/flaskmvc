@@ -61,7 +61,7 @@ def search():
         amenities_filter = {
             "Air Conditioning": request.form.get("has_ac"),
             "Heating": request.form.get("has_heating"),
-            "Washer/Dryer": request.form.get("has_washer_dryer"),
+            "Washer": request.form.get("has_washer_dryer"),
             "Dishwasher": request.form.get("has_dishwasher"),
             "Parking": request.form.get("has_parking"),
             "Gym": request.form.get("has_gym"),

@@ -1,3 +1,37 @@
 html {
     padding: 0;
 }
+
+/* ───── global reusable pills ─────────────────────────────── */
+.btn-pill {
+    border-radius: 35px !important;      /* full oval ends        */
+    padding: 0 1.8rem !important;        /* roomy left / right    */
+    line-height: 36px !important;        /* vertical centring     */
+    font-weight: 500;
+    transition: box-shadow .2s ease;
+  }
+  
+  .btn-pill:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  }
+  
+  /* ───── landlord dashboard tweaks ─────────────────────────── */
+  .dashboard-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .apartment-row td {
+    vertical-align: middle !important;
+  }
+  
+  .action‑icon {               /* eye / edit / trash icons     */
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; margin-right: .25rem;
+  }
+  .action‑icon:hover { opacity: .85; }
+  
