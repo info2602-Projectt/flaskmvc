@@ -1,10 +1,18 @@
 from .user import create_user
-from App.models import Apartment, Amenity, User, Review
+from App.models import Apartment, AmenityType, User, Review
 from App.database import db
 
 def initialize():
     db.drop_all()
     db.create_all()
+
+    amenity_names = [
+        "WiFi", "Gym", "Pool", "Air Conditioning",
+        "Washer", "Pet Friendly", "Furnished", "Parking"
+    ]
+    for n in amenity_names:
+        db.session.add(AmenityType(name=n))
+    db.session.commit() 
 
     # Create users
     usernames = ["bob", "john", "rick", "aidan", "sham", "dylan", "joe"]
@@ -161,7 +169,12 @@ def initialize():
     # Assign amenities individually to each apartment
     def add_amenities(apartment, names):
         for name in names:
-            db.session.add(Amenity(name=name, apartment_id=apartment.id))
+            at = AmenityType.query.filter_by(name=name).first()
+            if not at:                              # create if it didn’t exist
+                at = AmenityType(name=name)
+                db.session.add(at)
+            if at not in apartment.amenities:
+                apartment.amenities.append(at)
 
     add_amenities(apartments[0], ["Gym", "WiFi", "Pool", "Furnished", "Parking"])
     add_amenities(apartments[1], ["Air Conditioning", "WiFi", "Pool", "Washer", "Furnished"])

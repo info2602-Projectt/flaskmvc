@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 import os
-from App.models import User, Amenity
+from App.models import User, AmenityType
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from App.controllers.apartment import (
@@ -72,16 +72,21 @@ def create_listing():
 
         amenity_ids = request.form.getlist('amenities')
         for a_id in amenity_ids:
-            amenity = Amenity.query.get(a_id)
+            try:
+                aid = int(a_id)
+            except ValueError:
+                continue
+            amenity = AmenityType.query.get(aid)
             if amenity and amenity not in apartment.amenities:
                 apartment.amenities.append(amenity)
         db.session.commit()
 
 
+
         flash('Listing created successfully!', 'success')
         return redirect(url_for('apartment_views.list_apartments'))
 
-    amenities = Amenity.query.all()
+    amenities = AmenityType.query.all()
     return render_template('create_listing.html', amenities=amenities)
 
 @apartment_views.route('/apartments/<int:apartment_id>', methods=['GET'])
@@ -189,15 +194,20 @@ def edit_listing(apartment_id):
         update_apartment(apartment_id, **data)
         apartment.amenities.clear()
         for a_id in request.form.getlist('amenities'):
-            amenity = Amenity.query.get(a_id)
+            try:
+                aid = int(a_id)
+            except ValueError:
+                continue
+            amenity = AmenityType.query.get(aid)
             if amenity:
                 apartment.amenities.append(amenity)
         db.session.commit()
 
+
         flash('Listing updated successfully!', 'success')
         return redirect(url_for('apartment_views.view_apartment', apartment_id=apartment_id))
 
-    amenities = Amenity.query.all()
+    amenities = AmenityType.query.all()
     return render_template('edit_listing.html', apartment=apartment, amenities=amenities)
 
 @apartment_views.route(

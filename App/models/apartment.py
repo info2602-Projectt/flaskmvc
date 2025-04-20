@@ -1,5 +1,7 @@
 from datetime import datetime
 from App.database import db
+from .association import apartment_amenities
+from .amenity_type import AmenityType
 
 class Apartment(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -21,7 +23,11 @@ class Apartment(db.Model):
   owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
   # Relationships
-  amenities = db.relationship('Amenity', backref='apartment', lazy=True, cascade="all, delete-orphan")
+  amenities = db.relationship(
+        'AmenityType',
+        secondary=apartment_amenities,
+        backref='apartments'
+    )
   reviews = db.relationship('Review', backref='apartment', lazy=True, cascade="all, delete-orphan")
 
   def __repr__(self):
